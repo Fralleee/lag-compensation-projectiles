@@ -12,11 +12,6 @@ namespace LagCompensationProjectiles
 		[Tooltip("Projectile to spawn."), SerializeField]
 		PredictedProjectile _projectile;
 
-		[Tooltip("Debug projectile to spawn on server."), SerializeField]
-		bool _useLatencySpawnDelay;
-
-
-
 		public override void OnStartClient()
 		{
 			base.OnStartClient();
