@@ -1,8 +1,7 @@
 using FishNet;
 using UnityEngine;
-using VersausSurvival.Scripts;
 
-namespace VersausSurvival
+namespace LagCompensationProjectiles
 {
 	public class PredictedProjectile : MonoBehaviour
 	{

@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-namespace VersausSurvival.Scripts
+namespace LagCompensationProjectiles
 {
 	public class Health : MonoBehaviour
 	{

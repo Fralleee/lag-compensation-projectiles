@@ -2,7 +2,7 @@ using FishNet.Object;
 using UnityEngine;
 
 //This is made by Bobsi Unity - Youtube
-namespace VersausSurvival
+namespace LagCompensationProjectiles
 {
 	public class PlayerController : NetworkBehaviour
 	{

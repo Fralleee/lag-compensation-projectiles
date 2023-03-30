@@ -1,7 +1,7 @@
 using FishNet.Object;
 using UnityEngine;
 
-namespace VersausSurvival
+namespace LagCompensationProjectiles
 {
 	public class MovingTarget : NetworkBehaviour
 	{

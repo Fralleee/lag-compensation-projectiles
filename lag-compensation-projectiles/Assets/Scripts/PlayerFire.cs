@@ -3,7 +3,7 @@ using FishNet.Managing.Timing;
 using FishNet.Object;
 using UnityEngine;
 
-namespace VersausSurvival
+namespace LagCompensationProjectiles
 {
 	public class PlayerFire : NetworkBehaviour
 	{
