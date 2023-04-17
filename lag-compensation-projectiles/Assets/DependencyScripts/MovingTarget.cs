@@ -5,6 +5,7 @@ namespace LagCompensationProjectiles
 {
 	public class MovingTarget : NetworkBehaviour
 	{
+
 		[SerializeField] float _speed = 2f;
 		[SerializeField] float _distance = 5f;
 

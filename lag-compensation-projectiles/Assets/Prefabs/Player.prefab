@@ -288,7 +288,5 @@ MonoBehaviour:
   _componentIndexCache: 2
   _addedNetworkObject: {fileID: 9094258591915269062}
   _networkObjectCache: {fileID: 9094258591915269062}
-  _projectile: {fileID: 5535222750272268594, guid: 08af7b15b82ffc94faabc749cf53786e,
-    type: 3}
-  _projectileServer: {fileID: 5535222750272268594, guid: 79d338e2e7310344c8d1c35c42fb5ab2,
+  _projectile: {fileID: 5616127007337361240, guid: 08af7b15b82ffc94faabc749cf53786e,
     type: 3}

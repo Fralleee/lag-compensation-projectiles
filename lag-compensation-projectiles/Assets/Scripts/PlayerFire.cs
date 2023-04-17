@@ -1,5 +1,5 @@
 using System.Collections;
-using FishNet.Managing.Timing;
+using FishNet.Connection;
 using FishNet.Object;
 using UnityEngine;
 
@@ -7,10 +7,13 @@ namespace LagCompensationProjectiles
 {
 	public class PlayerFire : NetworkBehaviour
 	{
-		const float MAX_PASSED_TIME = 0.4f;
+		const float MaxPassedTime = 0.4f;
+
+		int nextProjectileId = 0;
+		int GetNextProjectileId => nextProjectileId++;
 
 		[Tooltip("Projectile to spawn."), SerializeField]
-		PredictedProjectile _projectile;
+		Projectile _projectile;
 
 		public override void OnStartClient()
 		{
@@ -32,34 +35,37 @@ namespace LagCompensationProjectiles
 		void ClientFire()
 		{
 			var origin = Camera.main.transform;
+			var projectileId = GetNextProjectileId;
 			var position = origin.position;
 			var direction = origin.forward;
 
 			var ping = GetPing();
-			var delay = (ping / 1000f) - MAX_PASSED_TIME;
+			var delay = (ping / 1000f) - MaxPassedTime;
 			if (delay > 0)
 			{
-				StartCoroutine(DelayedSpawnProjectile(position, direction, delay));
+				StartCoroutine(DelayedSpawnProjectile(projectileId, position, direction, delay));
 			}
 			else
 			{
-				SpawnProjectile(position, direction, 0f);
+				SpawnProjectile(projectileId, position, direction, 0f, this);
 			}
 
-			ServerFire(position, direction, TimeManager.Tick, IsServer); // Original
+			ServerFire(projectileId, position, direction, TimeManager.Tick, IsServer); // Original
 		}
 
-		IEnumerator DelayedSpawnProjectile(Vector3 position, Vector3 direction, float delay)
+		IEnumerator DelayedSpawnProjectile(int projectileId, Vector3 position, Vector3 direction, float delay)
 		{
 			yield return new WaitForSeconds(delay);
 
-			SpawnProjectile(position, direction, 0f);
+			SpawnProjectile(projectileId, position, direction, 0f, this);
 		}
 
-		void SpawnProjectile(Vector3 position, Vector3 direction, float passedTime)
+		void SpawnProjectile(int projectileId, Vector3 position, Vector3 direction, float passedTime, PlayerFire owner = null)
 		{
 			var pp = Instantiate(_projectile, position, Quaternion.identity);
-			pp.Initialize(direction, passedTime);
+			pp.Initialize(projectileId, direction, passedTime, owner);
+
+			CombatManager.Instance.RegisterProjectile(projectileId, pp);
 		}
 
 		long GetPing()
@@ -75,25 +81,31 @@ namespace LagCompensationProjectiles
 			return ping;
 		}
 
-		[ServerRpc]
-		void ServerFire(Vector3 position, Vector3 direction, uint tick, bool alreadyFired)
+		[ServerRpc(RequireOwnership = false)]
+		void ServerFire(int projectileId, Vector3 position, Vector3 direction, uint tick, bool alreadyFired)
 		{
-			if (!alreadyFired)
-			{
-				var passedTime = (float)TimeManager.TimePassed(tick);
-				passedTime = Mathf.Min(MAX_PASSED_TIME / 2f, passedTime);
-				SpawnProjectile(position, direction, passedTime);
-			}
-			ObserversFire(position, direction, tick);
+			//if (!alreadyFired)
+			//{
+			//	var passedTime = (float)TimeManager.TimePassed(tick);
+			//	passedTime = Mathf.Min(MaxPassedTime / 2f, passedTime);
+			//	SpawnProjectile(projectileId, position, direction, passedTime);
+			//}
+			ObserversFire(projectileId, position, direction, tick);
 		}
 
-		[ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
-		void ObserversFire(Vector3 position, Vector3 direction, uint tick)
+		[ObserversRpc(ExcludeOwner = true)]
+		void ObserversFire(int projectileId, Vector3 position, Vector3 direction, uint tick)
 		{
 			var passedTime = (float)TimeManager.TimePassed(tick);
-			passedTime = Mathf.Min(MAX_PASSED_TIME, passedTime);
+			passedTime = Mathf.Min(MaxPassedTime, passedTime);
 
-			SpawnProjectile(position, direction, passedTime);
+			SpawnProjectile(projectileId, position, direction, passedTime);
+		}
+
+		[TargetRpc]
+		public void SuccessfulHit(NetworkConnection networkConnection)
+		{
+			Debug.Log("WOOOHOOO HIT!");
 		}
 	}
 }
